@@ -118,7 +118,7 @@ def Get_Device_AllInfo():
         return ret
     ret,info = Fin.Get_Param(Type = "Baudrate")
     if ret == ERR_Code.ERR_SUCCESS:
-        print("Baudrate of device: ", Baudrate[info])
+        print("Baudrate of device: ", Baudrate[info-1])
     else:
         Process_ERR(ret)
         return ret
@@ -163,8 +163,8 @@ def Process_ERR(ret):
 def Set_Device_Param():
     print("Set Device Parameters now")
     print("Please input the type to set the parameter")
-    print("0: Device ID; 1: Security Level; 2: Duplicate Check Status; 3: Baudrate; 4: Auto Learn Status; 5: Exit the setting")
     while True:
+        print("0: Device ID; 1: Security Level; 2: Duplicate Check Status; 3: Baudrate; 4: Auto Learn Status; 5: Exit the setting")
         type = int(input("Please input the type code: "))
         if type == 0:
             Dev_ID = int(input("Please input the Device ID to set (10 ~ 255): "))
@@ -188,7 +188,7 @@ def Set_Device_Param():
             else:
                 Process_ERR(ret)
         elif type == 3:
-            print("Once you change the baudrate, you would need to modify the serial buadrate of the codes and restart the program to match the new baudrate")
+            print("Once you change the baudrate, the baudrate of the codes should be changed and restart to match the new baudrate")
             print("Please input the Baudrate to set:")
             print("1:9600, 2:19200, 3:38400, 4:57600, 5:115200, 6:230400, 7:460800, 8:921600")
             Baudrate_code = int(input("Please input the Baudrate code to set: "))

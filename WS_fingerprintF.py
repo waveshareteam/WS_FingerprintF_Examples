@@ -14,7 +14,7 @@ Baudrate = {0:9600, 1:19200, 2:38400, 3:57600, 4:115200, 5:230400, 6:460800, 7:9
 ser_com = serial_comm.get_serial_port()
 ser = serial.Serial(
     ser_com,
-    baudrate = Baudrate[1],
+    baudrate = Baudrate[4],
     timeout = 1
 )
 
@@ -522,7 +522,7 @@ def Set_Param(Type='Dev_ID', Param_Value = 1):
 #           'Dev_ID' : Device ID; range 1 ~ 255
 #           'Secu_Level' : Security level; range 1 ~ 5
 #           'Dup_Check' : Duplication Check status; 0: enable; 1: disable
-#           'Baudrate' : Baudrate; 0:9600, 1
+#           'Baudrate' : Baudrate; 1:9600, 2:19200, 3:38400, 4:57600, 5:115200, 6:230400, 7:460800, 8:921600
 #           'Auto_Learn' : Aduo Learn status; 0: enable; 1: disable
 # @Return:
 #   ERR_SUCCESS : Get Successful
