@@ -14,7 +14,7 @@ Baudrate = {0:9600, 1:19200, 2:38400, 3:57600, 4:115200, 5:230400, 6:460800, 7:9
 ser_com = serial_comm.get_serial_port()
 ser = serial.Serial(
     ser_com,
-    baudrate = Baudrate[1],
+    baudrate = Baudrate[4],
     timeout = 1
 )
 
@@ -27,8 +27,8 @@ Param = {
 }
 
 
-Image_width = 192
-Image_height = 192
+Image_width = 192 # Image width of fingeprint image 
+Image_height = 192 # Image height of fingerprint image
 
 PREFIX_CODE                 = 0xAA55
 PREFIX_CODE_P               = 0x5AA5
@@ -138,7 +138,13 @@ CMD_DATA = CMD_DATA_Packet()
 RSP_DATA = RSP_DATA_Packet()
 ERR = ERR_Code()
 
-
+#*********************************************
+# Function: Send a common command via serial port
+# @param:
+#       timeout: Timeout period to receive data packet
+# @Return: 
+#       None
+#*********************************************
 def SendCmd(timeout = 3):
     Checksum = 0x00
     global CMD, cmd
@@ -164,6 +170,14 @@ def SendCmd(timeout = 3):
     cmd = [0x00] * 26
     CMD = CMD_Packet() #Reset the CMD packet
 
+#*********************************************
+# Function: Send image data packet via serial port
+# @param:
+#       file_path: The path of image data file
+#       width: The width of fingerprint image
+#       height: The height of fingerprint image
+# @Return: None
+#*********************************************
 def Send_Packet(file_path, width = 192, height = 192):
     Checksum = 0x00
     bar_length = 20 
@@ -248,6 +262,14 @@ def Send_Packet(file_path, width = 192, height = 192):
         Rx_cmd(12)
     return ERR.ERR_SUCCESS
 
+#*********************************************
+# Function: Process received command packet
+# @param:
+#       flag: reserved
+#       len: length of data packet
+# @Return: 
+#       None
+#*********************************************
 def Rx_CMD_Process(flag, len = 26):
     if (len > 26):
         RSP_DATA.Prefix =rsp_p[0] + (rsp_p[1] << 8)
@@ -271,6 +293,14 @@ def Rx_CMD_Process(flag, len = 26):
             RSP.Data[i] = rsp[10 + i]
         RSP.CKS = rsp[24] | (rsp[25] << 8)
 
+#*********************************************
+# Function: Receive a image data packet via serial port
+# @param:
+#       timeout: Timeout period to receive data packet
+# @Return:
+#       ERR_SUCCESS : Received Successful
+#       ERR_FAIL : Receive Failed
+#*********************************************
 def Rx_Image_packet(timeout = 3):
     start_time = time.time()
     global rsp_p, rsp
@@ -322,10 +352,13 @@ def Rx_Image_packet(timeout = 3):
             return ERR.ERR_FAIL    
 
 #*********************************************
-#Function: Receive a command vai serial port
-#Return: 
-#   XG_ERR_SUCCESS : Received Successful
-#   XG_ERR_DATA : Data error
+# Function: Receive a command vai serial port
+# @param:
+#       timeout: Timeout period to receive data packet
+#       number: Number of bytes to receive
+# @Return: 
+#       ERR_SUCCESS : Received Successful
+#       ERR_DATA : Data error
 #*********************************************
 def Rx_cmd(timeout = 3, number = 26):
     start_time = time.time()
@@ -358,10 +391,12 @@ def Rx_cmd(timeout = 3, number = 26):
             return ERR.ERR_FAIL
 
 #*********************************************
-#Function: Receive a command vai serial port
-#Return: 
-#   XG_ERR_SUCCESS : Received Successful
-#   XG_ERR_DATA : Data error
+# Function: Receive a data packet vai serial port
+# @param:
+#       timeout: Timeout period to receive data packet
+# @Return: 
+#       ERR_SUCCESS : Received Successful
+#       ERR_FAIL: Receive Failed
 #*********************************************
 def Rx_data_cmd(timeout = 3):
     start_time = time.time()
@@ -404,11 +439,10 @@ def Rx_data_cmd(timeout = 3):
             return ERR.ERR_FAIL
 
 #*********************************************
-#Function: Check device connection status
-#DevAddress: Device address, default is 0， generally required for multple devices
-#Return:
-#   ERR_SUCCESS : Connected Successful
-#   ERR_FAIL : Connection Failed
+# Function: Check device connection status
+# @Return:
+#       ERR_SUCCESS : Connected Successful
+#       ERR_FAIL : Connection Failed
 #*********************************************
 def Test_Connection():
     SLED_CTL(0)
@@ -423,11 +457,18 @@ def Test_Connection():
     return ret
 
 #*********************************************
-#Function: Check device connection status
-#DevAddress: Device address, default is 0， generally required for multple devices
-#Return:
-#   ERR_SUCCESS : Connected Successful
-#   ERR_FAIL : Connection Failed
+# Function: Set the Paramere of device
+# @param: 
+#       Tyep_ID, The type of parameter to set, including:
+#           'Dev_ID' : Device ID; range 1 ~ 255
+#           'Secu_Level' : Security level; range 1 ~ 5
+#           'Dup_Check' : Duplication Check status; 0: enable; 1: disable
+#           'Baudrate' : Baudrate; 0:9600, 1:19200, 2:38400, 3:57600, 4:115200, 5:230400, 6:460800, 7:921600
+#           'Auto_Learn' : Aduo Learn status; 0: enable; 1: disable
+#       Param_Value, The value of parameter to set
+# @Return:
+#       ERR_SUCCESS : Set Successful
+#       ERR_FAIL : Set Failed
 #*********************************************
 def Set_Param(Type='Dev_ID', Param_Value = 1):
     CMD.CMD = CMD_SET_PARAM
@@ -469,13 +510,23 @@ def Set_Param(Type='Dev_ID', Param_Value = 1):
         if ret == ERR.ERR_SUCCESS:
             print("Set the Device Paramter successfully")
             return ERR.ERR_SUCCESS
-        return ERR.ERR_FAIL
+        return RSP.RET
     else:
-        return ERR.ERR_FAIL
+        return RSP.RET
 
 
 #*********************************************
-#
+# Function: Get the Paramete of device
+# @param: 
+#       Type_ID, The type of parameter to get, including:
+#           'Dev_ID' : Device ID; range 1 ~ 255
+#           'Secu_Level' : Security level; range 1 ~ 5
+#           'Dup_Check' : Duplication Check status; 0: enable; 1: disable
+#           'Baudrate' : Baudrate; 0:9600, 1
+#           'Auto_Learn' : Aduo Learn status; 0: enable; 1: disable
+# @Return:
+#   ERR_SUCCESS : Get Successful
+#   ERR_FAIL : Get Failed
 #*********************************************
 def Get_Param(Type = 'Dev_ID'):
     CMD.CMD = CMD_GET_PARAM
@@ -492,8 +543,11 @@ def Get_Param(Type = 'Dev_ID'):
     return ERR.ERR_FAIL
     
 #*********************************************
-#Function: Check device connection status
-#
+# Function: Get device information
+# @Return:
+#       ERR_SUCCESS : Get Successful
+#       ERR_FAIL : Get Failed
+#       info: Device information string
 #*********************************************
 def Get_DevInfo():
     CMD.CMD = CMD_DEVICE_INFO
@@ -504,12 +558,14 @@ def Get_DevInfo():
     if ret == ERR.ERR_SUCCESS:
         info = bytes(RSP_DATA.Data).decode('utf-8', errors = 'replace')
         #print("The Device is:", info)
-        return ERR.ERR_SUCCESS, info
-    return ERR.ERR_FAIL
+        return RSP.RET, info
+    return RSP.RET, info
 
 #*********************************************
-#Function: Check device connection status
-#
+# @Function: Acquire fingerprint image and save to imagebuffer
+# @Return:
+#       ERR_SUCCESS : Acquire Successful
+#       ERR_FAIL : Acquire Failed
 #*********************************************
 def Get_FP_Image():
     CMD.CMD = CMD_GET_IMAGE
@@ -524,7 +580,10 @@ def Get_FP_Image():
         return RSP.RET
 
 #*********************************************
-#
+# Function: Check finger is placed on sensor or not
+# @Return:
+#       ERR_SUCCESS : Finger is detected
+#       ERR_FAIL : Finger is not detected
 #*********************************************
 def Check_Finger():
     SLED_CTL(1)
@@ -534,14 +593,21 @@ def Check_Finger():
     if ret == ERR.ERR_SUCCESS and RSP.Data[0] == 1:
         #SLED_CTL(0)
         #print("Finger is detected")
-        return ERR.ERR_SUCCESS
+        return RSP.RET
     else:
         #SLED_CTL(0)
         #print("fail to detect finger")
-        return ERR.ERR_FAIL
+        return RSP.RET
 
 #*********************************************
-#
+# Function: Control sensor LED
+# @param:
+#       flag: LED control flag
+#           0: Turn off LED
+#           1: Turn on LED
+# @Return:
+#       ERR_SUCCESS : Command Successful
+#       ERR_FAIL : Command Failed
 #*********************************************
 def SLED_CTL(flag):
     CMD.CMD = CMD_SLED_CTRL
@@ -551,16 +617,20 @@ def SLED_CTL(flag):
     SendCmd()
     ret = Rx_cmd()
     if ret == ERR.ERR_SUCCESS:
-        return ERR.ERR_SUCCESS
+        return RSP.RET
     else:
-        return ERR.ERR_FAIL
+        return RSP.RET
 
 #*********************************************
-#Function: Check device connection status
-#DevAddress: Device address, default is 0， generally required for multple devices
-#Return:
-#   ERR_SUCCESS : Connected Successful
-#   ERR_FAIL : Connection Failed
+# Function: Get fingerprint image from imagebuffer and upload to host device
+# @param:
+#       type: Image type
+#           0: Full image (192x192)
+#           1: Quarter image (96x96)
+#       file_name: The name of saved image file
+# @Return:
+#       ERR_SUCCESS : Send Successful
+#       ERR_FAIL : Send Failed
 #*********************************************
 def UP_Image(ID = 1, type = 1, file_name = "finger_image"):
     CMD.CMD = CMD_UP_IMAGE_CODE
@@ -581,6 +651,12 @@ def UP_Image(ID = 1, type = 1, file_name = "finger_image"):
     else:
         return RSP.RET
 
+#*********************************************
+#Function: Save quarter image to PNG file and TXT file
+#@param:
+#       file_name: The name of saved image file
+#@return: None
+#*********************************************
 def save_quater_image(file_name = "FP_image"):
     width = int(Image_width / 2)
     height = int(Image_height / 2)
@@ -595,7 +671,7 @@ def save_quater_image(file_name = "FP_image"):
         print("wrong image data lenth")
         return ERR.ERR_FAIL
     print("handle the image now")
-    image_path =f"Pic/{file_name}.png"
+    image_path =f"Pic/{file_name}.bmp"
     txt_path = f"Template/{file_name}.txt"
     #mode1_flat = np.random.randint(0, 256, width*height, dtype=np.uint8).tolist()
     data_array = np.array(RSP_DATA.Data).reshape(width, height)
@@ -621,6 +697,12 @@ def save_quater_image(file_name = "FP_image"):
             f.write("\n")
     print("The image data is save to: ", os.path.abspath(txt_path))
 
+#*********************************************
+#Function: Save full image to bmp file and TXT file
+#@param:
+#       file_name: The name of saved image file
+#@return: None
+#*********************************************
 def save_full_image(file_name = "FP_image"):
     width = int(Image_width)
     height = int(Image_height)
@@ -633,7 +715,7 @@ def save_full_image(file_name = "FP_image"):
         print("wrong image data lenth")
         return ERR.ERR_FAIL
     print("handle the image now")
-    image_path =f"Pic/{file_name}.png"
+    image_path =f"Pic/{file_name}.bmp"
     txt_path = f"Template/{file_name}.txt"
     #mode1_flat = np.random.randint(0, 256, width*height, dtype=np.uint8).tolist()
     data_array = np.array(RSP_DATA.Data).reshape(width, height)
@@ -655,7 +737,12 @@ def save_full_image(file_name = "FP_image"):
     print("The image data is save to: ", os.path.abspath(txt_path))
 
 #*********************************************
-#
+#Function: Download fingerprint image from host device to imagebuffer
+#@param:
+#       file_name: The name of image file to download
+#Return:
+#   ERR_SUCCESS : Download Successful
+#   ERR_FAIL : Download Failed
 #*********************************************
 def Down_Image(file_name = "FP_Image"):
     CMD.CMD = CMD_DOWN_IMAGE
@@ -698,6 +785,14 @@ def Get_Empty_ID(BeginID = 1, EndID = 1000):
         print("Fail to get empty ID")
         return ERR.ERR_FAIL, None
 
+#*********************************************
+# Function: Generate fingerprint template from imagebuffer
+# @param:
+#       BufID: Buffer ID to store the generated template, 0 or 1 or 2
+# @Return:
+#       ERR_SUCCESS : Generate Successful
+#       ERR_FAIL : Generate Failed
+#*********************************************
 def Generate_Template(BufID = 0):
     CMD.CMD = CMD_GENERATE
     CMD.LEN = 2
@@ -744,6 +839,18 @@ def Match_Template(BufID_1 = 0, BufID_2 = 1):
         print("Fail to match template")
         return RSP.RET, None
 
+#*********************************************
+# Function: Search fingerprint template in database (1:N)
+# @param:
+#       BufID: Buffer ID to store the generated template, 0 or 1 or 2
+#       BeginID: Begin ID to search
+#       EndID: End ID to search 
+# @Return:
+#       ERR_SUCCESS : Search Successful
+#       ERR_FAIL : Search Failed
+#       found_id: The found ID
+#       score: The auto_update status
+#*********************************************
 def Search_Template(BufID = 0, BeginID = 1, EndID = 1000):
     CMD.CMD = CMD_SEARCH
     CMD.LEN = 6
@@ -764,6 +871,17 @@ def Search_Template(BufID = 0, BeginID = 1, EndID = 1000):
         print("Fail to search template")
         return RSP.RET, None, None
 
+#*********************************************
+# Function: Verify fingerprint template in database (1:1)
+# @param:
+#       BufID: Buffer ID to store the generated template, 0 or 1 or 2
+#       ID: ID to verify
+# @Return:
+#       ERR_SUCCESS : Verify Successful
+#       ERR_FAIL : Verify Failed
+#       found_id: The found ID
+#       score: The auto_update status
+#*********************************************
 def Verify_Template(BufID = 0, ID = 1):
     CMD.CMD = CMD_VERIFY
     CMD.LEN = 4
@@ -782,6 +900,13 @@ def Verify_Template(BufID = 0, ID = 1):
         print("Fail to verify template")
         return RSP.RET, None, None
 
+#*********************************************
+# Function: Get enrolled ID list from device
+# @Return:
+#       ERR_SUCCESS : Get Successful
+#       ERR_FAIL : Get Failed
+#       id_list: The list of enrolled IDs and their status
+#*********************************************
 def Get_Enrolled_ID_List():
     CMD.CMD = CMD_GET_ENROLLED_ID_LIST
     CMD.LEN = 0
@@ -802,6 +927,15 @@ def Get_Enrolled_ID_List():
         print("Fail to get enrolled ID list")
         return RSP.RET, None 
 
+#*********************************************
+# Function: Get Template ID status
+# @param:
+#       ID: ID to get status
+# @Return:
+#       ERR_SUCCESS : Get Successful
+#       ERR_FAIL : Get Failed
+#       status: The status of the ID, 0: not enrolled, 1: enrolled 
+#*********************************************
 def Get_Status(ID = 0):
     CMD.CMD = CMD_GET_STATUS
     CMD.LEN = 2
@@ -817,6 +951,15 @@ def Get_Status(ID = 0):
         print("Fail to get device status")
         return RSP.RET, None   
 
+#*********************************************
+# Function: Store fingerprint template from buffer to database
+# @param:
+#       ID: ID to store template
+#       BufID: Buffer ID to get the generated template, 0 or 1 or 2
+# @Return:   
+#       ERR_SUCCESS : Store Successful
+#       ERR_FAIL : Store Failed
+#*********************************************
 def Store_Template(ID = 1, BufID = 0):
     CMD.CMD = CMD_STORE_CHAR
     CMD.LEN = 4
@@ -832,7 +975,16 @@ def Store_Template(ID = 1, BufID = 0):
     else:
         print("Fail to store template")
         return RSP.RET
-    
+
+#*********************************************
+# Function: Delete fingerprint template from database
+# @param:
+#       BeginID: Begin ID to delete
+#       EndID: End ID to delete
+# @Return:
+#       ERR_SUCCESS : Delete Successful
+#       ERR_FAIL : Delete Failed
+# *********************************************    
 def Delete_Template(BeginID = 1, EndID = 1000):
     CMD.CMD = CMD_DEL_CHAR
     CMD.LEN = 4
@@ -849,6 +1001,16 @@ def Delete_Template(BeginID = 1, EndID = 1000):
         print("Fail to delete template")
         return RSP.RET
 
+#*********************************************
+# Function: Get enrolled fingerprint count from database
+# @param:
+#       BeginID: Begin ID to count
+#       EndID: End ID to count
+# @Return:
+#       ERR_SUCCESS : Get Successful
+#       ERR_FAIL : Get Failed
+#       Count: The number of enrolled fingerprints
+#*********************************************
 def Get_Enroll_Count(BeginID = 1, EndID = 1000):
     CMD.CMD = CMD_GET_ENROLL_COUNT
     CMD.LEN = 4

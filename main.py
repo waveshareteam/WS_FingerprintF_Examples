@@ -152,7 +152,7 @@ def Process_ERR(ret):
         0x1A: "Fail to marge the template",
         0x1C: "Fail to flashed",
         0x22: "Wrong parameter",
-        0x25: "Invalid count of templates to marge",
+        0x25: "Invalid count of templates to merge",
         0x23: "Input fingerprint Timeout",
         0x26: "Wrong Buffer ID",
         0x28: "No finger detected on the sensor",
@@ -182,7 +182,7 @@ def Process_CMD(cmd):
             print("Delete all enrolled information failed, ret = ", ret)
     elif cmd == '6':
         print("This operation will not enroll the fingerprint template into the database, if you need to enroll, please use Add User function")
-        print("Get Fingerprint Image now, default save as 'FP_Image.png' in Pic folder")
+        print("Get Fingerprint Image now, default save as 'FP_Image.bmp' in Pic folder")
         print("and the raw data save as 'FP_Image.txt' in Template folder")
         print("Note that this operation will overwrite the existing files with the same name")
         print("Please put your finger on sensor to get image")
