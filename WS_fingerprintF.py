@@ -14,7 +14,7 @@ Baudrate = {0:9600, 1:19200, 2:38400, 3:57600, 4:115200, 5:230400, 6:460800, 7:9
 ser_com = serial_comm.get_serial_port()
 ser = serial.Serial(
     ser_com,
-    baudrate = Baudrate[4],
+    baudrate = Baudrate[1],
     timeout = 1
 )
 
@@ -593,11 +593,11 @@ def Check_Finger():
     if ret == ERR.ERR_SUCCESS and RSP.Data[0] == 1:
         #SLED_CTL(0)
         #print("Finger is detected")
-        return RSP.RET
+        return ERR.ERR_SUCCESS
     else:
         #SLED_CTL(0)
         #print("fail to detect finger")
-        return RSP.RET
+        return ERR.ERR_FAIL
 
 #*********************************************
 # Function: Control sensor LED
