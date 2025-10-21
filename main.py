@@ -168,21 +168,21 @@ def Set_Device_Param():
         type = int(input("Please input the type code: "))
         if type == 0:
             Dev_ID = int(input("Please input the Device ID to set (10 ~ 255): "))
-            ret = Fin.Set_Param(Type = "Dev_ID", Param = Dev_ID)
+            ret = Fin.Set_Param(Type = "Dev_ID", Param_Value = Dev_ID)
             if ret == ERR_Code.ERR_SUCCESS:
                 print("Set Device ID successfully")
             else:
                 Process_ERR(ret)
         elif type == 1:
             Secu_Level = int(input("Please input the Security Level to set (1 ~ 5): "))
-            ret = Fin.Set_Param(Type = "Secu_Level", Param = Secu_Level)
+            ret = Fin.Set_Param(Type = "Secu_Level", Param_Value = Secu_Level)
             if ret == ERR_Code.ERR_SUCCESS:
                 print("Set Security Level successfully")
             else:
                 Process_ERR(ret)
         elif type == 2:
             Dup_Check = int(input("Please input the Duplicate Check Status to set (0-enable; 1-disable): "))
-            ret = Fin.Set_Param(Type = "Dup_Check", Param = Dup_Check)
+            ret = Fin.Set_Param(Type = "Dup_Check", Param_Value = Dup_Check)
             if ret == ERR_Code.ERR_SUCCESS:
                 print("Set Duplicate Check Status successfully")
             else:
@@ -192,14 +192,14 @@ def Set_Device_Param():
             print("Please input the Baudrate to set:")
             print("1:9600, 2:19200, 3:38400, 4:57600, 5:115200, 6:230400, 7:460800, 8:921600")
             Baudrate_code = int(input("Please input the Baudrate code to set: "))
-            ret = Fin.Set_Param(Type = "Baudrate", Param = Baudrate_code)
+            ret = Fin.Set_Param(Type = "Baudrate", Param_Value = Baudrate_code)
             if ret == ERR_Code.ERR_SUCCESS:
                 print("Set Baudrate successfully")
             else:
                 Process_ERR(ret)
         elif type == 4:
             Auto_Learn = int(input("Please input the Auto Learn Status to set (0-enable; 1-disable): "))
-            ret = Fin.Set_Param(Type = "Auto_Learn", Param = Auto_Learn)
+            ret = Fin.Set_Param(Type = "Auto_Learn", Param_Value = Auto_Learn)
             if ret == ERR_Code.ERR_SUCCESS:
                 print("Set Auto Learn Status successfully")
             else:
