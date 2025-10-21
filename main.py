@@ -160,6 +160,54 @@ def Process_ERR(ret):
     }
     print("Error occurred: ", ERR_Map.get(ret, "Unknown Error Code"))
 
+def Set_Device_Param():
+    print("Set Device Parameters now")
+    print("Please input the type to set the parameter")
+    print("0: Device ID; 1: Security Level; 2: Duplicate Check Status; 3: Baudrate; 4: Auto Learn Status; 5: Exit the setting")
+    while True:
+        type = int(input("Please input the type code: "))
+        if type == 0:
+            Dev_ID = int(input("Please input the Device ID to set (10 ~ 255): "))
+            ret = Fin.Set_Param(Type = "Dev_ID", Param = Dev_ID)
+            if ret == ERR_Code.ERR_SUCCESS:
+                print("Set Device ID successfully")
+            else:
+                Process_ERR(ret)
+        elif type == 1:
+            Secu_Level = int(input("Please input the Security Level to set (1 ~ 5): "))
+            ret = Fin.Set_Param(Type = "Secu_Level", Param = Secu_Level)
+            if ret == ERR_Code.ERR_SUCCESS:
+                print("Set Security Level successfully")
+            else:
+                Process_ERR(ret)
+        elif type == 2:
+            Dup_Check = int(input("Please input the Duplicate Check Status to set (0-enable; 1-disable): "))
+            ret = Fin.Set_Param(Type = "Dup_Check", Param = Dup_Check)
+            if ret == ERR_Code.ERR_SUCCESS:
+                print("Set Duplicate Check Status successfully")
+            else:
+                Process_ERR(ret)
+        elif type == 3:
+            print("Once you change the baudrate, you would need to modify the serial buadrate of the codes and restart the program to match the new baudrate")
+            print("Please input the Baudrate to set:")
+            print("1:9600, 2:19200, 3:38400, 4:57600, 5:115200, 6:230400, 7:460800, 8:921600")
+            Baudrate_code = int(input("Please input the Baudrate code to set: "))
+            ret = Fin.Set_Param(Type = "Baudrate", Param = Baudrate_code)
+            if ret == ERR_Code.ERR_SUCCESS:
+                print("Set Baudrate successfully")
+            else:
+                Process_ERR(ret)
+        elif type == 4:
+            Auto_Learn = int(input("Please input the Auto Learn Status to set (0-enable; 1-disable): "))
+            ret = Fin.Set_Param(Type = "Auto_Learn", Param = Auto_Learn)
+            if ret == ERR_Code.ERR_SUCCESS:
+                print("Set Auto Learn Status successfully")
+            else:
+                Process_ERR(ret)
+        elif type == 5:
+            print("Exit the setting now")
+            break
+
 def Process_CMD(cmd):
     if cmd == '1':
         ret = Fin.Test_Connection()
@@ -181,6 +229,9 @@ def Process_CMD(cmd):
         else:
             print("Delete all enrolled information failed, ret = ", ret)
     elif cmd == '6':
+        Set_Device_Param()
+
+    elif cmd == '7':
         print("This operation will not enroll the fingerprint template into the database, if you need to enroll, please use Add User function")
         print("Get Fingerprint Image now, default save as 'FP_Image.bmp' in Pic folder")
         print("and the raw data save as 'FP_Image.txt' in Template folder")
@@ -195,7 +246,7 @@ def Process_CMD(cmd):
             if ret != ERR_Code.ERR_SUCCESS:
                 Process_ERR(ret)
 
-    elif cmd == '7':
+    elif cmd == '8':
         print("This operation will not enroll the fingerprint template into the database, if you need to enroll, please use Add User function")
         print("This operation will read the FP_image.txt file and save it to the imagebuff of the device")
     
@@ -219,12 +270,13 @@ def main():
     print("2: Get Device info;")
     print("3: Add User;")
     print("4: Verify User;")
-    print("4: Delete All the enrolled information;")
-    print("6: Get Fingerprint Image;")
-    #print("7: Download Fingerprint Image to ImageBuff;")
+    print("5: Delete All the enrolled information;")
+    print("6: Set Device parameter;")
+    print("7: Get Fingerprint Image;")
+    #print("8: Download Fingerprint Image to ImageBuff;")
     while True:
-        cmd = input("Please input CMD code (or 'exit' to quit): ")
-        if cmd == 'exit':
+        cmd = input("Please input CMD code (or 'q' to quit): ")
+        if cmd == 'q':
             break 
         Process_CMD(cmd)
         time.sleep(1)
